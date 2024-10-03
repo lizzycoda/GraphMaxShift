@@ -46,7 +46,7 @@ for path in boundaries :
 plt.xlim(-4,4)
 plt.ylim(-4,4)
 ```
-![Graph Max Shift](figures/plots/readme_a.png){: width="50%"}
+<img src="figures/plots/readme_a.png" alt="Graph Max Shift path" width="50%" />
 
 
 The code also supports a more complicated tie-breaking mechanism, in which all paths are followed. In this case, a point may belong to more than one cluster. 
@@ -57,7 +57,7 @@ r = .25
 h = .25
 maxshift.cluster(h,r)
 
-clusters = maxshift.reindex_clusters(min_count = 25) # points that belong to multiple clusters are colored separatley
+clusters = maxshift.reindex_clusters(min_count = 25) # points that belong to multiple clusters are colored pink
 paths = maxshift.get_path(7) #visualize paths starting from node 7
 plt.figure(figsize = [5,5])
 plt.scatter(data[:,0], data[:,1], c = clusters, cmap = ListedColormap(['tab:pink','tab:grey', 'tab:red', 'tab:blue' ]), s = 3)
