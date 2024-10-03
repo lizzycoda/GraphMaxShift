@@ -4,7 +4,7 @@ This repository is associated with the paper TITLE and ARXIV LINK
 We present a method for the clustering of graph data (graph partitioning). If we take the population-level clusters to correspond to the basins of attraction of the underlying density (see, for example [Fukunaga and Hostetler (1975)](https://ieeexplore.ieee.org/document/1055330) and [Chac&oacute;n (2015)](https://projecteuclid.org/journals/statistical-science/volume-30/issue-4/A-Population-Background-for-Nonparametric-Density-Based-Clustering/10.1214/15-STS526.full), the method is consistent when applied to a random geometric graph. 
 
 
-The method is as follows. Given a graph with $n$ nodes and dissimilarity $\delta_{ij}$ between nodes $i$ and $j$, let $q_i = | \{ j: \delta_{ij} \leq h \} |$. Then starting from each node $i$, we construct a hill-climbing path by moving at iteration $t$ to $i_t \in \text{argmax} { q_j : \delta_{ij} \leq r } $. We cluster together nodes whose paths end at the same mode.
+The method is as follows. Given a graph with $n$ nodes and dissimilarity $\delta_{ij}$ between nodes $i$ and $j$, let $q_i = | \{ j: \delta_{ij} \leq h \} |$. Then starting from each node $i$, we construct a hill-climbing path by moving at iteration $t$ to $i_t \in \text{argmax} \{ q_j : \delta_{ij} \leq r \} $. We cluster together nodes whose paths end at the same mode.
 
  
 # Example Usage 
@@ -40,13 +40,13 @@ maxshift.cluster(h,r)
 # visualize the results
 clusters = maxshift.reindex_clusters(min_count = 25)
 plt.figure(figsize = [5,5])
-plt.scatter(data[:,0], data[:,1], c = clusters, cmap = 'tab10', s = 3)
+plt.scatter(data[:,0], data[:,1], c = clusters, cmap = ListedColormap(['tab:grey', 'tab:red', 'tab:blue' ]), s = 3)
 for path in boundaries :
     plt.plot(path[:,0], path[:,1], color = 'black')
 plt.xlim(-4,4)
 plt.ylim(-4,4)
 ```
-![Graph Max Shift](figures/plots/readme_a.png){width=150}
+![Graph Max Shift](figures/plots/readme_a.png)
 
 
 The code also supports a more complicated tie-breaking mechanism, in which all paths are followed. In this case, a point may belong to more than one cluster. 
