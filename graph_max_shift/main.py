@@ -63,7 +63,7 @@ class GraphMaxShift:
         if self.tie_method == 1:
 
             self._get_modes() #identfy modes
-            self._get_mode_labels() #group together labels for modes that are within a distance r
+            self._get_mode_labels(m) #group together labels for modes that are within a distance r
 
             for i in tqdm.tqdm(range(self.n)):
                 self.clusters[i] = self._get_cluster_all_paths(i)
@@ -117,6 +117,27 @@ class GraphMaxShift:
             curr_idx, is_mode = self._one_step_simple(curr_idx)
         return curr_idx
     
+    def _merge_modes(self,n_hops = 1):
+        temp_labels = {m:i for i,m in enumerate(self.modes) }
+        inv_temp_labels = {v: k for k, v in temp_labels.items()}
+        
+        edges = []
+
+        for idx, i in enumerate(self.modes):
+            for j in self.modes[idx+1:]:
+                graph_distance = len(self.graph.G.get_shortest_path(i,j)) -1
+                if (graph_distance <= n_hops) & (graph_distance > 0) :
+                    edges += [(temp_labels[i],temp_labels[j])]
+
+
+        mode_graph = ig.Graph(n = len(self.modes), edges = edges)
+        cc = list(mode_graph.connected_components())
+        
+        for c in cc:
+            if len(c)>1:
+                mode_labels = [inv_temp_labels[i] for i in c]
+                self.clusters[np.isin(self.clusters, mode_labels)] = mode_labels[0]
+    
     ###### Tie breaking method 2: follow all paths ######
         
     def _get_cluster_all_paths(self, curr_idx, prev_explored = None):
@@ -168,31 +189,9 @@ class GraphMaxShift:
         self.is_mode = self.is_mode.astype(bool)
         self.modes = np.where(self.is_mode)[0] #get indices of modes
       
-    def _merge_modes(self,n_hops = 1):
-        temp_labels = {m:i for i,m in enumerate(self.modes) }
-        inv_temp_labels = {v: k for k, v in temp_labels.items()}
-        
-        edges = []
-
-        for idx, i in enumerate(self.modes):
-            for j in self.modes[idx+1:]:
-                graph_distance = len(self.graph.G.get_shortest_path(i,j)) -1
-                if (graph_distance <= n_hops) & (graph_distance > 0) :
-                    edges += [(temp_labels[i],temp_labels[j])]
-
-
-        mode_graph = ig.Graph(n = len(self.modes), edges = edges)
-        cc = list(mode_graph.connected_components())
-        
-        for c in cc:
-            if len(c)>1:
-                mode_labels = [inv_temp_labels[i] for i in c]
-                self.clusters[np.isin(self.clusters, mode_labels)] = mode_labels[0]
-
-                  
-    def _get_mode_labels(self):
+    def _get_mode_labels(self, n_hops):
         """
-        For each identified mode, this function labels the modes so that if two modes are neighbors (within a dist r), they have the same label. 
+        For each identified mode, this function labels the modes so that if two modes are within n_hops, they have the same label. 
         """
         
         self.mode_labels = np.ones(self.n)*-1
@@ -202,8 +201,13 @@ class GraphMaxShift:
         
         #construct a graph on the modes and identify connected components 
         edges = []
-        for m in self.modes:
-            edges += [(temp_labels[m],temp_labels[i]) for i in self.modes if (i in self.graph.nbhds[m]) & (i > m)]
+        
+        for idx, i in enumerate(self.modes):
+            for j in self.modes[idx+1:]:
+                graph_distance = len(self.graph.G.get_shortest_path(i,j)) -1
+                if (graph_distance <= n_hops) & (graph_distance > 0) :
+                    edges += [(temp_labels[i],temp_labels[j])]
+
         mode_graph = ig.Graph(n = len(self.modes), edges = edges)
         cc = list(mode_graph.connected_components())
 

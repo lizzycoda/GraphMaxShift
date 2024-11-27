@@ -2,7 +2,7 @@
 This repository is associated with the paper: Graph Max Shift: A Hill-Climbing Method for Graph Clustering (TO DO: ARXIV LINK) 
 
 We present a method for the clustering of graph data (graph partitioning).
-Our focus will be random geometric graphs with nodes corresponding to points that are generated iid from a density with sufficient regularity, and edges connecting all pairs $\{y_i, y_j\}$ with $||y_j - y_j|| \leq  r$. The basic question that motivates the present work is the following:
+Our focus will be random geometric graphs with nodes corresponding to points that are generated iid from a density with sufficient regularity, and edges connecting all pairs $\{y_i, y_j\}$ within a distance $r$. The basic question that motivates the present work is the following:
 *Given a random geometric graph, is it possible to partition the graph in a way which is consistent with the clustering given by gradient ascent flow of the density?* For more information on the gradient flow approach to clustering, see, for example [Fukunaga and Hostetler (1975)](https://ieeexplore.ieee.org/document/1055330) and [Chac&oacute;n (2015)](https://projecteuclid.org/journals/statistical-science/volume-30/issue-4/A-Population-Background-for-Nonparametric-Density-Based-Clustering/10.1214/15-STS526.full).
 
 We answer the question affirmatively and the method we propose is as follows. Consider a graph with $n$ nodes. Starting at node $i$, we construct a hill-climbing path by iteratively moving to the neighbor with highest the degree. We then cluster together nodes whose hill-climbing paths end at the same node. Finally, we merge together any two clusters whose associated nodes are within $m$ hops. 
