@@ -5,7 +5,7 @@ We present a method for the clustering of graph data (graph partitioning).
 Our focus will be random geometric graphs with nodes corresponding to points that are generated iid from a density with sufficient regularity, and edges connecting all pairs $\{y_i, y_j\}$ with $||y_j - y_j|| \leq  r$. The basic question that motivates the present work is the following:
 *Given a random geometric graph, is it possible to partition the graph in a way which is consistent with the clustering given by gradient ascent flow of the density?* For more information on the gradient flow approach to clustering, see, for example [Fukunaga and Hostetler (1975)](https://ieeexplore.ieee.org/document/1055330) and [Chac&oacute;n (2015)](https://projecteuclid.org/journals/statistical-science/volume-30/issue-4/A-Population-Background-for-Nonparametric-Density-Based-Clustering/10.1214/15-STS526.full).
 
-We answer the question affirmatively and the method we propose is as follows. Consider a graph with $n$ nodes and adjacency matrix $A = (a_{ij})$ where, as usual, $a_{ij} = 1$ exactly when $i$ and $j$ are neighbors in the graph, and $=0$ otherwise. Let $q_i$ be the degree of node $i$. Starting from each node $i$, we construct a hill-climbing path by moving at iteration $t$ to node $i_t$ where $$i_t \in \text{argmax}$  $\{ q_j : a_{ij} = 1} $$
+We answer the question affirmatively and the method we propose is as follows. Consider a graph with $n$ nodes and adjacency matrix $A = (a_{ij})$ where, as usual, $a_{ij} = 1$ exactly when $i$ and $j$ are neighbors in the graph, and $a_{ij} =0$ otherwise. Let $q_i$ be the degree of node $i$. Starting from each node $i$, we construct a hill-climbing path by moving at iteration $t$ to node $i_t$ where $$i_t \in \text{argmax} \{ q_j : a_{ij} = 1} $$
 
 In plain words, Graph Max Shift iteratively moves to neighbor with highest the degree. We then cluster together nodes whose hill-climbing paths end at the same node. Finally, we merge together any two clusters whose associated nodes are within $m$ hops. 
 
@@ -109,10 +109,10 @@ The code is built in Python (3.11.5) and the following packages:
 
 # Citation 
 
-`@article{graphmaxshift,
+```@article{graphmaxshift,
   title={Graph Max Shift: A Hill-Climbing Method for Graph Clustering},
   author={Ery Arias-Castro and Elizabeth Coda and Wanli Qiao},
   journal={arXiv preprint arXiv: TODO},
   year={2024}
-}` 
+}```
 
