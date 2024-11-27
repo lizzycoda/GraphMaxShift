@@ -109,10 +109,12 @@ The code is built in Python (3.11.5) and the following packages:
 
 # Citation 
 
-```@article{graphmaxshift,
+```
+@article{graphmaxshift,
   title={Graph Max Shift: A Hill-Climbing Method for Graph Clustering},
   author={Ery Arias-Castro and Elizabeth Coda and Wanli Qiao},
   journal={arXiv preprint arXiv: TODO},
   year={2024}
-}```
+  }
+```
 
