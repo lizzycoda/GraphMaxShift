@@ -1,7 +1,7 @@
 import numpy as np
 
 """
-Implementation of the (medoid) max shift method. At each iteration, move to the point within a radius r that maximizes the denisty.
+Implementation of the (medoid) max shift method. At each iteration, move to the point within a radius r that maximizes the density.
 Here the density is known.
 """
 
@@ -29,9 +29,3 @@ def max_shift(x0, data, r , f):
     return np.array(path)
 
 
-def x_check_path(graph_max_shift_path, data, r, f):
-    path = [graph_max_shift_path[0]]
-    for i in range(len(graph_max_shift_path)):
-        path += [one_step(graph_max_shift_path[i], data , r, f)]
-    
-    return np.array(path)

@@ -6,12 +6,20 @@ import tqdm
 class GraphMaxShift:
     """
     Partition graph according to the Graph Max Shift method.
+    
+    The implementation is for the general case of a weighted graph.
+    
     From each node i, start at i_0 = i and then at iteration t,
     move to a node in the r-neighborhood with the highest degree (as determined by the h-neighborhood). 
+    Typically, we set h = r. 
+    
+    At the end, we merge together any modes which are within m hops of one another.
     
     In this implementation, two tie-breaking mechanisms are supported.
     In the first (simpler) method, to break a tie between nodes i and j, we choose node i if i < j. 
     In the second method, all paths are followed. Thus, a node may belong to multiple clusters.
+    
+    STILL TO DO: Update the m-hop merging in the second tie breaking method. 
     """
     
     
@@ -27,10 +35,13 @@ class GraphMaxShift:
         self.n = graph.n
         self.tie_method = tie_method
         
-    def update_graph(self,h,r):
-        self.h = h
+    def update_graph(self,r, h=None):
         self.r = r 
-        self.graph.update_graph(h , r)
+        if h == None:
+            self.h = r
+        else:
+            self.h = h 
+        self.graph.update_graph(r, h)
         
     def _init_clusters(self):
         if self.tie_method == 1:
@@ -38,15 +49,15 @@ class GraphMaxShift:
         else:
             self.clusters = np.ones(self.n)*-1 
             
-    def cluster(self,h,r):
+    def cluster(self,r, h = None, m = 1):
   
         """
-        Cluster the data with Graph Max Shift parameters h,r.
+        Cluster the data with Graph Max Shift parameters h,r, and m.
         
         Cluster labels are arbitrary and vary with the tie method.
         """
         
-        self.update_graph(h,r) #update degree and neighbors of the graph
+        self.update_graph(r, h) #update degree and neighbors of the graph
         self._init_clusters()
         
         if self.tie_method == 1:
@@ -65,6 +76,10 @@ class GraphMaxShift:
             self.is_mode = self.clusters == np.arange(self.n) 
             self.is_mode = self.is_mode.astype(bool)
             self.modes = np.where(self.is_mode)[0]
+            
+            # merge together modes that are within m hops of one another 
+            if m >0:
+                self._merge_modes(m)
         
     
     
@@ -153,7 +168,27 @@ class GraphMaxShift:
         self.is_mode = self.is_mode.astype(bool)
         self.modes = np.where(self.is_mode)[0] #get indices of modes
       
-                    
+    def _merge_modes(self,n_hops = 1):
+        temp_labels = {m:i for i,m in enumerate(self.modes) }
+        inv_temp_labels = {v: k for k, v in temp_labels.items()}
+        
+        edges = []
+
+        for idx, i in enumerate(self.modes):
+            for j in self.modes[idx+1:]:
+                graph_distance = len(self.graph.G.get_shortest_path(i,j)) -1
+                if (graph_distance <= n_hops) & (graph_distance > 0) :
+                    edges += [(temp_labels[i],temp_labels[j])]
+
+
+        mode_graph = ig.Graph(n = len(self.modes), edges = edges)
+        cc = list(mode_graph.connected_components())
+        
+        for c in cc:
+            if len(c)>1:
+                mode_labels = [inv_temp_labels[i] for i in c]
+                self.clusters[np.isin(self.clusters, mode_labels)] = mode_labels[0]
+
                   
     def _get_mode_labels(self):
         """
@@ -284,12 +319,23 @@ class GraphMaxShift:
         return paths
 
 class GeometricGraph:
+    """
+    Constructs a graph with nodes corresponding to the given data point.
+    The degree of node i is the number of data points within a distance h from data point i. 
+    The neighbors of node i are the nodes that correspond to the data points within a distance r from data point i. 
+    Typically we set h = r. 
+    
+    We store distances so that h and r may be changed and the graph can be updated quickly. 
+    Due to memory constraints, we only store distances less than a specified max_dist. 
+    """
+    
+    
     def __init__(self, data, max_dist, batch_size = 10000):
         self.n = len(data)
         self.max_dist = max_dist
         self.h = None # use to determine degree, should be <= max_dist
         self.r = None  # use to determine neighbors, should be <= max_dist 
-        self.data = data #still to do: is there a way to speed up the runtime of this?
+        self.data = data 
         self._init_graph(batch_size, max_dist)
         
     def _init_graph(self,  batch_size, max_dist):
@@ -326,9 +372,13 @@ class GeometricGraph:
         self.targets = np.array(self.targets)
         self.dists = np.array(self.dists)
         
-    def update_graph(self, h , r):
+    def update_graph(self, r, h = None):
+        
         self.r = r
-        self.h = h
+        if h == None:
+            self.h = r
+        else:
+            self.h = h
 
         edgelist = zip(self.sources[self.dists<self.r], self.targets[self.dists<r])
         self.G = ig.Graph(n = self.n, edges = edgelist)

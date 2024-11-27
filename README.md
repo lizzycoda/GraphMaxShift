@@ -1,10 +1,15 @@
 # Graph Max Shift
-This repository is associated with the paper TITLE and ARXIV LINK
+This repository is associated with the paper: Graph Max Shift: A Hill-Climbing Method for Graph Clustering (TO DO: ARXIV LINK) 
 
-We present a method for the clustering of graph data (graph partitioning). If we take the population-level clusters to correspond to the basins of attraction of the underlying density (see, for example [Fukunaga and Hostetler (1975)](https://ieeexplore.ieee.org/document/1055330) and [Chac&oacute;n (2015)](https://projecteuclid.org/journals/statistical-science/volume-30/issue-4/A-Population-Background-for-Nonparametric-Density-Based-Clustering/10.1214/15-STS526.full), the method is consistent when applied to a random geometric graph. 
+We present a method for the clustering of graph data (graph partitioning).
+Our focus will be random geometric graphs with nodes corresponding to points that are generated iid from a density with sufficient regularity, and edges connecting all pairs $\{y_i, y_j\}$ with $||y_j - y_j|| \leq  r$. The basic question that motivates the present work is the following:
+*Given a random geometric graph, is it possible to partition the graph in a way which is consistent with the clustering given by gradient ascent flow of the density?* For more information on the gradient flow approach to clustering, see, for example [Fukunaga and Hostetler (1975)](https://ieeexplore.ieee.org/document/1055330) and [Chac&oacute;n (2015)](https://projecteuclid.org/journals/statistical-science/volume-30/issue-4/A-Population-Background-for-Nonparametric-Density-Based-Clustering/10.1214/15-STS526.full).
 
+We answer the question affirmatively and the method we propose is as follows. Consider a graph with $n$ nodes and adjacency matrix $A = (a_{ij})$ where, as usual, $a_{ij} = 1$ exactly when $i$ and $j$ are neighbors in the graph, and $=0$ otherwise. Let $q_i$ be the degree of node $i$. Starting from each node $i$, we construct a hill-climbing path by moving at iteration $t$ to node $i_t$ where $$i_t \in \text{argmax}$  $\{ q_j : a_{ij} = 1} $$
 
-The method is as follows. Given a graph with $n$ nodes and dissimilarity $\delta_{ij}$ between nodes $i$ and $j$, let $q_i = | \{ j: \delta_{ij} \leq h \} |$. Then starting from each node $i$, we construct a hill-climbing path by moving at iteration $t$ to $i_t \in \text{argmax}$  $\{ q_j : \delta_{ij} \leq r \} $. We cluster together nodes whose paths end at the same mode.
+In plain words, Graph Max Shift iteratively moves to neighbor with highest the degree. We then cluster together nodes whose hill-climbing paths end at the same node. Finally, we merge together any two clusters whose associated nodes are within $m$ hops. 
+
+In what follows, we provide the code for the Graph Max Shift algorithm, as well as the code to reproduce all figures in the paper. 
 
  
 # Example Usage 
@@ -25,7 +30,7 @@ We can obtain the boundaries of the ground truth clusters as defined by the basi
 modes, saddle, boundaries = ground_truth_clustering(bimodal)
 ```
 
-Next, we sample data, construct a graph, and apply Graph Max Shift
+Next, we sample data, construct a graph, and apply Graph Max Shift to the graph with edges connecting pairs within distance $.25$. 
 
 ```
 n = 10000
@@ -33,9 +38,7 @@ data = bimodal.sample(n)
 graph = GeometricGraph(data, max_dist = .5, batch_size=5000) 
 
 maxshift = GraphMaxShift(graph)
-r = .25
-h = .25
-maxshift.cluster(h,r)
+maxshift.cluster(r = .25, m = 1) 
 
 # visualize the results
 clusters = maxshift.reindex_clusters(min_count = 25)
@@ -53,9 +56,7 @@ The code also supports a more complicated tie-breaking mechanism, in which all p
 
 ```
 maxshift = GraphMaxShift(graph, tie_method = 1 ) #change tie_method
-r = .25
-h = .25
-maxshift.cluster(h,r)
+maxshift.cluster(r = .25, m = 1)
 
 clusters = maxshift.reindex_clusters(min_count = 25) # points that belong to multiple clusters are colored pink
 paths = maxshift.get_path(7) #visualize paths starting from node 7
@@ -83,7 +84,7 @@ The repository contains the following files:
     - `utils/`
          - `mixture_population_clustering.py` implements the numerical method described in Section 3.1 of [Chac&oacute;n (2015)](https://projecteuclid.org/journals/statistical-science/volume-30/issue-4/A-Population-Background-for-Nonparametric-Density-Based-Clustering/10.1214/15-STS526.full) to obtain the ground truth (gt) clustering for Gaussian mixtures. The method is based on Theorem 1 in [Ray & Lindsay (2005)](https://projecteuclid.org/journals/annals-of-statistics/volume-33/issue-5/The-topography-of-multivariate-normal-mixtures/10.1214/009053605000000417.full). In practice, the method works well for a bimodal mixture with minimal hyperparameter tuning but we find that some adjustments needed to be made for other mixtures, and these are documented in `figures/mixtures.ipynb`.
         - `mixture_model.py`is used to generate data from a Gaussian mixture and can be used to calcuate the density, gradient, and hessian of the mixture (which is useful in determining the population clustering)
-        - `max_shift.py` implements the mediod Max Shift method as described in [Arias-Castro & Qiao (2022)](https://arxiv.org/abs/2202.09023). we use this in our Figure 3
+        - `max_shift.py` implements the mediod Max Shift method as described in [Arias-Castro & Qiao (2022)](https://arxiv.org/abs/2202.09023). we use this in Figure 4
       
    
 
@@ -92,8 +93,9 @@ The repository contains the following files:
     - `plots/` contains the generated figures
    
     - `mixtures.ipynb` (Figure 1)
-    - `hyperparameter_tuning.ipynb` (Figure 2)
-    - `visualize_paths.ipynb` (Figure 3)
+    - `parameter_tuning.ipynb` (Figures 2 and 3)
+    - `visualize_paths.ipynb` (Figure 4)
+    - `parameter_tuning_b.ipynb` (Additional example) 
     
 
 # Requirements
@@ -107,4 +109,10 @@ The code is built in Python (3.11.5) and the following packages:
 
 # Citation 
 
-TO DO
+`@article{graphmaxshift,
+  title={Graph Max Shift: A Hill-Climbing Method for Graph Clustering},
+  author={Ery Arias-Castro and Elizabeth Coda and Wanli Qiao},
+  journal={arXiv preprint arXiv: TODO},
+  year={2024}
+}` 
+
