@@ -1,5 +1,5 @@
 # Graph Max Shift
-This repository is associated with the paper: Graph Max Shift: A Hill-Climbing Method for Graph Clustering (TO DO: ARXIV LINK) 
+This repository is associated with the paper: [Graph Max Shift: A Hill-Climbing Method for Graph Clustering](https://arxiv.org/abs/2411.18794)
 
 We present a method for the clustering of graph data (graph partitioning).
 Our focus will be random geometric graphs with nodes corresponding to points that are generated iid from a density with sufficient regularity, and edges connecting all pairs $\{y_i, y_j\}$ within a distance $r$. The basic question that motivates the present work is the following:
@@ -111,7 +111,7 @@ The code is built in Python (3.11.5) and the following packages:
 @article{graphmaxshift,
   title={Graph Max Shift: A Hill-Climbing Method for Graph Clustering},
   author={Ery Arias-Castro and Elizabeth Coda and Wanli Qiao},
-  journal={arXiv preprint arXiv: TODO},
+  journal={arXiv preprint arXiv: 2411.18794},
   year={2024}
   }
 ```
